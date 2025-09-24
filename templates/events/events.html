@@ -1,0 +1,177 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>My Events</h2>
+            <button class="btn btn-primary" onclick="showCreateEventForm()">
+                <i class="bi bi-plus-circle"></i> Create Event
+            </button>
+        </div>
+        
+        <!-- Create Event Form (Hidden by default) -->
+        <div id="create-event-form" class="card mb-4" style="display: none;">
+            <div class="card-header">
+                <h5 class="mb-0">Create New Event</h5>
+            </div>
+            <div class="card-body">
+                <form id="create-event-form-element">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="event-title" class="form-label">Event Title *</label>
+                                <input type="text" class="form-control" id="event-title" name="title" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="event-date" class="form-label">Event Date *</label>
+                                <input type="datetime-local" class="form-control" id="event-date" name="date" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="event-location" class="form-label">Location *</label>
+                        <input type="text" class="form-control" id="event-location" name="location" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="event-description" class="form-label">Description</label>
+                        <textarea class="form-control" id="event-description" name="description" rows="3"></textarea>
+                    </div>
+                    <div id="create-event-error" class="alert alert-danger d-none"></div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success">Create Event</button>
+                        <button type="button" class="btn btn-secondary" onclick="showCreateEventForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Events Grid -->
+        <div id="events-section" class="row">
+            <!-- Events will be loaded here by JavaScript -->
+        </div>
+        
+        <!-- Loading and Error States -->
+        <div id="events-loading" class="text-center py-3" style="display:none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="mt-2">Loading your events...</div>
+        </div>
+        
+        <div id="events-error" class="alert alert-danger d-none"></div>
+    </div>
+
+<!-- Guest Management Modal -->
+<div class="modal fade" id="guestModal" tabindex="-1" aria-labelledby="guestModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="guestModalLabel">Manage Guests</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Add Guest Form -->
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6 class="card-title">Add New Guest</h6>
+                        <form id="add-guest-form">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="guest-name" class="form-label">Name *</label>
+                                        <input type="text" class="form-control" id="guest-name" name="name" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="guest-email" class="form-label">Email *</label>
+                                        <input type="email" class="form-control" id="guest-email" name="email" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="guest-rsvp" class="form-label">RSVP Status</label>
+                                <select class="form-select" id="guest-rsvp" name="rsvp_status">
+                                    <option value="invited">Invited</option>
+                                    <option value="accepted">Accepted</option>
+                                    <option value="declined">Declined</option>
+                                </select>
+                            </div>
+                            <div id="guest-form-error" class="alert alert-danger d-none"></div>
+                            <button type="submit" class="btn btn-primary">Add Guest</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Guests List -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Guest List</h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="guests-list" class="list-group list-group-flush">
+                            <!-- Guests will be loaded here -->
+                        </div>
+                        <div id="guests-loading" class="text-center py-3" style="display:none;">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vendor Management Modal -->
+<div class="modal fade" id="vendorModal" tabindex="-1" aria-labelledby="vendorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="vendorModalLabel">Event Vendors</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Vendors List -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">Booked Vendors</h6>
+                        <small class="text-muted">Manage your vendor bookings</small>
+                    </div>
+                    <div class="card-body">
+                        <div id="vendors-list">
+                            <!-- Vendors will be loaded here -->
+                        </div>
+                        <div id="vendors-loading" class="text-center py-3" style="display:none;">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <div class="mt-2">Loading vendors...</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Add Vendor Section -->
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h6 class="card-title">Need More Vendors?</h6>
+                        <p class="card-text small text-muted">Browse our vendor directory to book additional services for this event.</p>
+                        <a href="/vendors/page/" class="btn btn-outline-primary btn-sm" target="_blank">
+                            <i class="bi bi-search"></i> Browse Vendors
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

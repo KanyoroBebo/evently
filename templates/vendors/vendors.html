@@ -1,0 +1,65 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="container py-4">
+        <h2>Browse Vendors</h2>
+        
+        <!-- Category Filter Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="category-filter-container">
+                    <div class="d-flex flex-wrap justify-content-center justify-content-md-start">
+                        <button type="button" class="btn btn-outline-primary category-filter-btn active" data-category="all">
+                            <i class="bi bi-grid-3x3-gap me-1"></i>All Categories
+                        </button>
+                        {% for category in category_list %}
+                        <button type="button" class="btn btn-outline-primary category-filter-btn" data-category="{{ category.id }}">
+                            <i class="bi bi-tag me-1"></i>{{ category.name }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="vendors-section" class="row"></div>
+        <div id="vendors-loading" class="text-center py-3" style="display:none;">
+            <div class="spinner-border"></div>
+        </div>
+        <div id="vendors-error" class="alert alert-danger d-none"></div>
+    </div>
+<!-- Booking Modal -->
+<div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bookingModalLabel">Book Vendor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="booking-form">
+                    <div class="mb-3" id="event-select-group" style="display:none;">
+                        <label for="booking-event" class="form-label">Select Event</label>
+                        <select class="form-select" id="booking-event" name="event_id"></select>
+                    </div>
+                    <div class="mb-3" id="event-create-group" style="display:none;">
+                        <label for="booking-event-name" class="form-label">Event Name</label>
+                        <input type="text" class="form-control" id="booking-event-name" name="event_name">
+                        <label for="booking-event-date" class="form-label mt-2">Event Date</label>
+                        <input type="date" class="form-control" id="booking-event-date" name="event_date">
+                    </div>
+                    <div class="mb-3" id="service-select-group">
+                        <label for="booking-service" class="form-label">Select Service</label>
+                        <select class="form-select" id="booking-service" name="service_id"></select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="booking-notes" class="form-label">Notes (optional)</label>
+                        <textarea class="form-control" id="booking-notes" name="notes"></textarea>
+                    </div>
+                    <div id="booking-modal-error" class="alert alert-danger d-none"></div>
+                    <button type="submit" class="btn btn-primary w-100">Submit Booking</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
