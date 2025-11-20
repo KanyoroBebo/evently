@@ -538,7 +538,7 @@ function renderCategories(categories) {
     container.querySelectorAll('.category-card').forEach(card => {
         card.addEventListener('click', () => {
             const categoryId = card.getAttribute('data-category');
-            window.location.href = `/vendors/page/?category=${categoryId}`;
+            window.location.href = `/vendors/page/?category=${encodeURIComponent(categoryId)}`;
         });
     });
 }
