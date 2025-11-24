@@ -9,6 +9,9 @@ from .models import *
 from vendors.models import *
 from users.models import User
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 @login_required
 def events_page(request):
@@ -73,7 +76,8 @@ def create_booking(request):
         )
         return JsonResponse({'status': 'pending', 'booking': booking.serialize()}, status=201)
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+        logger.exception(e)  # Log stack trace for diagnostics
+        return JsonResponse({'error': 'An internal error occurred.'}, status=400)
 
 @require_http_methods(["PATCH"])
 @login_required
